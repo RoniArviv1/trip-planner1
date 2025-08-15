@@ -1,188 +1,202 @@
-# Personal Trip Planner
 
-A full-stack web application that allows registered users to plan trip routes, save them, view their trip history, and receive relevant information such as weather forecasts.
+Trip Planner AI — README
 
-## Features
+פרויקט קצה לקצה לתכנון מסלולי טיול חכמים עם React בצד הלקוח ו־ Node.js Express בצד השרת. המערכת מייצרת מסלולי הליכה או רכיבה ריאליים סביב יעד שבוחר המשתמש, מבצעת התאמה לרשת שבילים וכבישים, מציגה תחזית מזג אוויר אמיתית לשלושת הימים הקרובים ומאפשרת לשמור את המסלול לחשבון האישי.
 
-### MVP Features
-- **User Authentication**: Registration, login, logout with JWT tokens
-- **Trip Planning**: Create cycling and hiking routes with interactive maps
-- **Route Management**: Save, view, and manage personal trip routes
-- **Weather Integration**: 3-day weather forecasts for trip locations
-- **Interactive Maps**: Leaflet.js integration for route visualization
 
-### Technical Stack
-- **Frontend**: React.js with HTML5, CSS3, JavaScript (ES6)
-- **Backend**: Node.js + Express.js
-- **Database**: MongoDB (NoSQL)
-- **Authentication**: JWT tokens with password hashing
-- **Maps**: Leaflet.js for interactive mapping
-- **Weather API**: OpenWeatherMap integration
-- **Route Generation**: AI-powered route suggestions
+סקירה כללית
+האפליקציה מאפשרת למשתמשים להתחבר או להירשם, לבחור יעד וסוג טיול, לקבל מסלול ריאלי שנבנה משילוב מודל שפה גדול ליצירת נקודות עניין וכיווני תנועה, יחד עם OpenRouteService להצמיד את המסלול לרשת הדרכים והשבילים האמיתית במפה. בנוסף מתקבלת תחזית מזג אוויר אמיתית לשלושת הימים הקרובים ותמונה מייצגת של היעד. המשתמש יכול לשמור את המסלול, לצפות בו מאוחר יותר, לערוך פרטים ולמחוק.
 
-## Project Structure
+יכולות עיקריות
+- התחברות, הרשמה, התנתקות וניהול פרופיל עם JWT.
+- תכנון מסלול הליכה מעגלי ליום אחד 5 עד 15 קילומטר.
+- תכנון מסלול רכיבה ליומיים לא מעגלי עד כ 60 קילומטר ליום.
+- התאמת המסלול לרשת שבילים וכבישים עם OpenRouteService 
+- זיהוי והרחקה של מסלול בקו ישר כדי למנוע תוצאות לא ריאליות.
+- תחזית מזג אוויר אמיתית לשלושת הימים הקרובים לפי נקודת התחלה.
+- תמונת כיסוי ליעד מהאינטרנט או ברירת מחדל.
+- שמירה, צפייה, עדכון ומחיקה של מסלולים בבסיס הנתונים לכל משתמש.
+- מפות אינטראקטיביות עם Leaflet והצגת Polyline לפי ימים.
 
-```
-Trip/
-├── client/                 # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/         # Page components
-│   │   ├── services/      # API services
-│   │   ├── utils/         # Utility functions
-│   │   └── styles/        # CSS styles
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── config/            # Configuration files
-│   ├── controllers/       # Route controllers
-│   ├── middleware/        # Custom middleware
-│   ├── models/           # MongoDB models
-│   ├── routes/           # API routes
-│   ├── utils/            # Utility functions
-│   └── package.json
-├── .env.example          # Environment variables template
-└── README.md
-```
+ארכיטקטורה ומבנה פרויקט
 
-## Prerequisites
+📂 trip-planner1-main/
+│
+├── 📂 client/ — צד לקוח (Frontend) כתוב ב־React
+│   ├── 📂 public/ — קבצי HTML סטטיים (כולל index.html הראשי)
+│   ├── 📂 src/
+│   │   ├── 📂 components/ — רכיבי ממשק חוזרים (Navbar, LocationSearch, WeatherCard, RouteMap, LoadingSpinner)
+│   │   ├── 📂 contexts/ — ניהול State גלובלי (AuthContext)
+│   │   ├── 📂 pages/ — דפי המערכת (Home, Login, Profile, Register, RouteDetail, SavedRoutes, TripPlanner)
+│   │   ├── 📂 services/ — ממשקים ל־API (authService, routeService, tripService, weatherService)
+│   │   ├── index.js — קובץ כניסה לאפליקציה
+│   │   └── index.css — קובץ עיצוב עם TailwindCSS
+│   └── tailwind.config.js — קובץ הגדרות TailwindCSS
+│
+├── 📂 server/ — צד שרת (Backend) ב־Node.js + Express 
+│   ├── 📂 routes/ — נתיבי API (auth, routes, trip)
+│   ├── 📂 controllers/ — לוגיקת ניהול בקשות
+│   ├── 📂 models/ — מודלי Mongoose למסד הנתונים
+│   ├── 📂 middleware/ — אימות JWT, טיפול בשגיאות, ולידציות
+│   └── server.js — קובץ הפעלת השרת
+│
+├── .gitignore — קובץ להתעלמות מקבצים מיותרים ב־Git
+├── README.md — תיעוד הפרויקט
+└── setup.ps1 — סקריפט התקנה מהיר ב־PowerShell
 
-- Node.js (v14 or higher)
-- MongoDB (local installation or MongoDB Atlas)
-- npm or yarn package manager
 
-## Installation & Setup
 
-### 1. Clone and Setup
-```bash
-# Clone the repository
-git clone <repository-url>
-cd Trip
+טכנולוגיות עיקריות
+- לקוחReact, React Router, TailwindCSS, Leaflet, Axios, react-hot-toast   -
+- שרת-  Node.js, Express, Mongoose, JWT, express-validator
+- נתוניםMongoDB -
+- צד שלישי OpenRouteService לניווט,
+ OpenWeatherMap לתחזית,
+ Unsplash לתמונות יעד,
+ Groq LLM ליצירת  .Waypoints
 
-# Install backend dependencies
+
+התקנה והרצה מקומית:
+דרישות מוקדמות
+- Node.js גרסה 18 ומעלה
+- npm או yarn 
+- MongoDB רץ מקומית או בענן
+- מפתחות API לשירותים הבאים:
+  - OPENROUTESERVICE_API_KEY
+  - WEATHER_API_KEY ל OpenWeatherMap
+  - GROQ_API_KEY למודל השפה
+  - UNSPLASH_ACCESS_KEY אופציונלי לתמונות
+
+קבצי סביבה env
+צור שני קבצי env נפרדים לשרת ולקוח.
+
+server/.env
+PORT=5001
+NODE_ENV=development
+CLIENT_URL=http://localhost:3000
+
+MONGODB_URI=mongodb://localhost:27017/trip-planner
+
+JWT_SECRET=change_me
+JWT_EXPIRE=7d
+
+OPENROUTESERVICE_API_KEY=your_ors_key
+WEATHER_API_KEY=your_openweather_key
+GROQ_API_KEY=your_groq_key
+UNSPLASH_ACCESS_KEY=your_unsplash_key 
+# טיונינג אופציונלי
+CYCLING_MAX_KM_PER_DAY=60
+HIKING_MIN_KM=5
+HIKING_MAX_KM=15
+
+
+client/.env
+במידה והלקוח צריך לפנות לשרת בכתובת שונה מברירת מחדל הגדירי:
+REACT_APP_API_URL=http://localhost:5001/api
+
+
+הרצה מהירה עם PowerShell אופציונלי
+במערכת Windows ניתן להריץ את סקריפט ההתקנה:
+powershell
+# מתוך תיקיית השורש של הפרויקט
+.\setup.ps1
+
+הסקריפט יתקין תלויות, יוודא קבצי env וידפיס הוראות המשך. עדיין יש לספק מפתחות תקפים בקבצי env. 
+
+הרצה ידנית של השרת והלקוח
+פתחי שני טרמינלים נפרדים.
+טרמינל 1 שרת:
+bash
 cd server
 npm install
-
-# Install frontend dependencies
-cd ../client
+npm run dev   #  או npm start אם לא מוגדר dev 
+טרמינל 2 לקוח:
+bash
+cd client
 npm install
-```
-
-### 2. Environment Configuration
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env file with your configuration
-# Required variables:
-# - MONGODB_URI: Your MongoDB connection string
-# - JWT_SECRET: Secret key for JWT tokens
-# - WEATHER_API_KEY: OpenWeatherMap API key
-# - PORT: Server port (default: 5000)
-```
-
-### 3. Database Setup
-- Set up MongoDB locally or use MongoDB Atlas
-- Update MONGODB_URI in .env file
-- Database and collections will be created automatically
-
-### 4. API Keys Required
-- **OpenWeatherMap API Key**: Get free API key from [OpenWeatherMap](https://openweathermap.org/api)
-- **JWT Secret**: Generate a secure random string for JWT token signing
-
-### 5. Running the Application
-
-#### Development Mode
-```bash
-# Terminal 1: Start backend server
-cd server
-npm run dev
-
-# Terminal 2: Start frontend development server
-cd client
 npm start
-```
 
-#### Production Mode
-```bash
-# Build frontend
-cd client
-npm run build
+ברירת מחדל: לקוח על http://localhost:3000 שרת על http://localhost:5001 
 
-# Start production server
-cd ../server
-npm start
-```
+זרימת עבודה קצה לקצה
+1. משתמש נכנס או נרשם. השרת מחזיר JWT והלקוח שומר ב localStorage.
+2. המשתמש בוחר יעד ב LocationSearch. נבחרים name, lat, lng.
+3. המשתמש לוחץ תכנן מסלול. הלקוח שולח POST אל /api/trip/plan עם היעד וסוג הטיול.
+4. השרת מייצר Waypoints בעזרת מודל LLM לפי כללי Hiking או Cycling.
+5. השרת שולח את ה Waypoints ל OpenRouteService כדי לקבל מסלול GeoJSON ריאלי.
+6. השרת מביא תחזית מזג אוויר אמיתית ל 3 ימים לפי קואורדינטות התחלה ומחזיר יחד עם תמונת יעד.
+7. הלקוח(client) מציג מפה אינטראקטיבית, תחזית ותמונה. המשתמש יכול לשמור למסד הנתונים.
+8. בדף מסלולים שמורים ניתן לטעון, לערוך או למחוק מסלול.
 
-## API Endpoints
+נקודות אינטגרציה חיצוניות
+- OpenRouteService קצה /v2/directions פרופילים foot-hiking ו cycling-regular
+- OpenWeatherMap קצה תחזית מעובד ל 3 ימים קדימה
+- Unsplash חיפוש תמונה לפי מחרוזת יעד אופציונלי
+- Groq Chat Completions יצירת Waypoints בפורמט JSON בלבד
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user (protected)
+ API צד שרת
 
-### Routes
-- `GET /api/routes` - Get user's saved routes (protected)
-- `POST /api/routes` - Save new route (protected)
-- `GET /api/routes/:id` - Get specific route (protected)
-- `DELETE /api/routes/:id` - Delete route (protected)
+אימות משתמשים
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/auth/me מחייב JWT
+- PUT /api/auth/profile מחייב JWT
+- PUT /api/auth/password מחייב JWT
 
-### Weather
-- `GET /api/weather/:location` - Get weather forecast for location
+מסלולים שמורים
+- GET /api/routes מחזיר רשימת מסלולים למשתמש המחובר עם פאגינציה וסינון tripType
+- GET /api/routes/:id מחזיר מסלול מפורט כולל geometry או dailyRoutes ו center
+- POST /api/routes יוצר מסלול חדש לאחר נרמול נתונים
+- PUT /api/routes/:id מעדכן שדות שנשלחו בלבד עם נרמול מחודש אם routeData הוחלף
+- DELETE /api/routes/:id מוחק מסלול בבעלות המשתמש
 
-### Trip Planning
-- `POST /api/plan-trip` - Generate trip route with AI
 
-## Usage
+תכנון מסלול
+- POST /api/trip/plan מחייב JWT
+  - גוף הבקשה:
+json
+    {
+      "location": { "name": "Berlin Germany", "lat": 52.52, "lng": 13.405 },
+      "tripType": "hiking" // או "cycling"
+    }
+    ```
+  - תגובה:
+   json
+    {
+      "route": { "geometry": {...}, "dailyRoutes": [...], "totalDistance": 12345, "totalDuration": 3600 },
+      "weather": {“forecast": [ ... 3 ימים ...] },
+      "image": { "url": "..." }
+    }
+    
 
-### 1. User Registration/Login
-- Navigate to the application
-- Register with email, name, and password
-- Login with credentials
-- JWT token is automatically managed
+מזג אוויר ותמונת יעד
+•	תחזית מזג האוויר אינה נשמרת במסד הנתונים, אלא מחושבת בזמן אמת כחלק מהתגובה לקריאה POST /api/trip/plan באמצעות פונקציית השירות getWeatherData(lat, lng), ומוחזרת בשדה weather.
+•	תמונת יעד: ניתן לשלוח בקשה אל GET /api/image?location= לקבלת תמונת יעד מתאימה. קריאה זו מבוצעת גם כחלק מ־/trip/plan והתוצאה מוחזרת בשדה image.
 
-### 2. Trip Planning
-- Select country/region/city
-- Choose trip type (Hiking or Cycling)
-- View generated route on interactive map
-- See weather forecast for next 3 days
-- Save route with custom name and description
 
-### 3. Route Management
-- View all saved routes in history
-- Click on route to load on map
-- Delete unwanted routes
-- View route details and weather
+מודלים בבסיס הנתונים 
+User:
+•	name, email ייחודי
+•	password (hash)
+•	isActive
+•	lastLogin
+•	מתודות: matchPassword, getPublicProfile
+Route:
+•	user (ref)
+•	name, description, tripType (hiking/cycling)
+•	location: city, country, coordinates
+•	routeData: geometry (GeoJSON) או dailyRoutes, totalDistance, totalDuration
+•	image: נתוני תמונה
+•	tags, notes
+•	וירטואלים: הצגת מרחק וזמן בפורמט קריא
 
-## Security Features
 
-- Password hashing with bcrypt
-- JWT token authentication
-- Protected routes and user-specific data
-- Input validation and sanitization
-- CORS configuration
 
-## Known Issues
 
-- Weather API has rate limits (free tier: 60 calls/minute)
-- Route generation depends on external AI service availability
-- Map tiles may have loading delays in some regions
 
-## Development Notes
 
-- All API calls use fetch with proper error handling
-- React components are functional with hooks
-- MongoDB schemas include proper validation
-- Code includes comprehensive error handling
-- Responsive design for mobile and desktop
 
-## Contributing
 
-1. Fork the repository
-2. Create feature branch
-3. Make changes with proper testing
-4. Submit pull request
 
-## License
 
-This project is created for educational purposes as part of a full-stack development course. 
+
