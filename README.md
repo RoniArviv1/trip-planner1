@@ -1,3 +1,5 @@
+Roni Arviv 206395642
+Maya Kalev 212212856
 
 Trip Planner AI — README
 
