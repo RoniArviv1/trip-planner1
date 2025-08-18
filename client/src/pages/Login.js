@@ -5,20 +5,19 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Login = () => {
-  // אחסון שדות הטופס באובייקט אחד — מפשט ניהול והעברה ל-API
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  // חשיפת/הסתרת סיסמה — שיקול שימושיות (להפחתת טעויות הקלדה)
+  
   const [showPassword, setShowPassword] = useState(false);
-  // מצב טעינה — מונע שליחה כפולה ומאפשר פידבק למשתמש
+  
   const [loading, setLoading] = useState(false);
-  // שגיאות ברמת השדה — מאפשר הצגת הודעה מתחת לקלט ספציפי
+
   const [errors, setErrors] = useState({});
 
-  const { login } = useAuth();        // תלות יחידה בהקשר אימות — לא מחזיקים state כפול
-  const navigate = useNavigate();     // ניווט SPA לאחר התחברות מוצלחת
+  const { login } = useAuth();        
+  const navigate = useNavigate();     
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,23 +58,22 @@ const Login = () => {
     e.preventDefault(); // מניעת רענון דף ברירת מחדל של טופס
     
     if (!validateForm()) {
-      return; // עוצרים כאן — אין טעם לקרוא לשרת עם נתונים לא תקינים
+      return; 
     }
 
-    setLoading(true); // נעילת הכפתור והצגת "Signing in..."
+    setLoading(true); 
     
     try {
       // קריאה מרוכזת לשכבת auth — החלטה ארכיטקטונית: לוגיקה עסקית לא בקומפוננטה
       const result = await login(formData.email, formData.password);
       
       if (result.success) {
-        toast.success('Login successful!'); // פידבק חיובי מיידי
-        navigate('/plan');                  // החלטה מוצרית: אחרי התחברות שולחים ישר לתכנון טיול
+        toast.success('Login successful!'); 
+        navigate('/plan');                 
       } else {
-        toast.error(result.error);          // הודעת שגיאה ידידותית מהשרת
+        toast.error(result.error);         
       }
     } catch (error) {
-      // רשת/שגיאה בלתי צפויה — הודעה כללית כדי לא לחשוף פרטים מיותרים
       toast.error('Login failed. Please try again.');
     } finally {
       setLoading(false); // שחרור כפתור בכל מקרה

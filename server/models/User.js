@@ -33,12 +33,6 @@ const userSchema = new mongoose.Schema({
                           // כדי למנוע חשיפה לא מכוונת בתשובות API
   },
 
-  // תמונת פרופיל (אופציונלית)
-  avatar: {
-    type: String,
-    default: null
-  },
-
   // סטטוס חשבון (פעיל/לא פעיל)
   isActive: {
     type: Boolean,

@@ -19,9 +19,10 @@ const Navbar = () => {
   };
 
   // שליטה על פתיחה/סגירה של תפריט מובייל
-  const toggleMenu = () => {
+  /*const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+  */
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -73,15 +74,14 @@ const Navbar = () => {
               </div>
             )}
           </div>
-
-          {/* כפתור תפריט למובייל */}
+          {/* כפתור תפריט למובייל 
           <button onClick={toggleMenu} className="md:hidden p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100">
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
+          */}
         </div>
-
-        {/* תפריט למובייל */}
-        {isMenuOpen && (
+            
+        {/*isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-4">
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-gray-600 hover:text-blue-600">Home</Link>
@@ -109,7 +109,7 @@ const Navbar = () => {
               )}
             </div>
           </div>
-        )}
+        )*/}
       </div>
     </nav>
   );
