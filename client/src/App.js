@@ -7,7 +7,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import TripPlanner from './pages/TripPlanner';
 import SavedRoutes from './pages/SavedRoutes';
-import RouteDetail from './pages/RouteDetail';
 import Profile from './pages/Profile';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -61,14 +60,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <SavedRoutes />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/routes/:id" 
-            element={
-              <ProtectedRoute>
-                <RouteDetail />
               </ProtectedRoute>
             } 
           />

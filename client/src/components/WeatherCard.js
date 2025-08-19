@@ -61,7 +61,7 @@ const WeatherCard = ({ weather, location }) => {
         {/* מציגים את שם המיקום והמדינה אם המידע קיים */}
         {location && (
           <p className="text-sm text-gray-600 mt-1">
-            {location.name}, {location.country}
+            {location.country ? `${location.name}, ${location.country}` : location.name}
           </p>
         )}
       </div>

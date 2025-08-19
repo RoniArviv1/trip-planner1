@@ -1,7 +1,7 @@
 // server/routes/weather.js
 const express = require('express');
 const { getWeatherData } = require('../controllers/weatherController');
-
+const { protect } = require('../middleware/auth'); // Middleware שמוודא שהמשתמש מחובר (JWT)
 const router = express.Router();
 
 /**

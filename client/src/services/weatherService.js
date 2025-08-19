@@ -27,19 +27,18 @@ export const weatherService = {
     const latNum = Number(lat);
     const lngNum = Number(lng);
 
-    // בדיקת תקינות קואורדינטות לפני שליחת הבקשה
+   
     if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
       throw new Error('Invalid coordinates for weather lookup');
     }
 
     const res = await api.get(`/weather/${latNum}/${lngNum}`);
 
-    // במידה והבקשה הצליחה, מחזירים את ה־data מהשרת
+    
     if (res?.data?.success) {
-      return res.data.data; // למשל { forecast: [...] }
+      return res.data.data; 
     }
 
-    // במידה והבקשה נכשלה, נזרקת שגיאה עם הודעה מתאימה
     throw new Error(res?.data?.message || 'Failed to load weather');
   },
 };

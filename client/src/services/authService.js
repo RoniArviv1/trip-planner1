@@ -45,10 +45,7 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-  /**
-   * רישום משתמש חדש
-   * שולח שם, אימייל וסיסמה ל־API
-   */
+ 
   async register(name, email, password) {
     const response = await api.post('/auth/register', {
       name,
@@ -58,10 +55,6 @@ export const authService = {
     return response.data.data;
   },
 
-  /**
-   * התחברות משתמש
-   * שולח אימייל וסיסמה ל־API ומקבל חזרה Token + פרטי משתמש
-   */
   async login(email, password) {
     const response = await api.post('/auth/login', {
       email,
@@ -70,25 +63,19 @@ export const authService = {
     return response.data.data;
   },
 
-  /**
-   * קבלת פרטי המשתמש הנוכחי לפי ה־Token
-   */
+  
   async getCurrentUser() {
     const response = await api.get('/auth/me');
     return response.data.data.user;
   },
 
-  /**
-   * עדכון פרטי פרופיל משתמש
-   */
+
   async updateProfile(profileData) {
     const response = await api.put('/auth/profile', profileData);
     return response.data.data.user;
   },
 
-  /**
-   * שינוי סיסמה – דורש סיסמה נוכחית וסיסמה חדשה
-   */
+  
   async changePassword(currentPassword, newPassword) {
     const response = await api.put('/auth/password', {
       currentPassword,

@@ -25,14 +25,6 @@ api.interceptors.request.use(
 );
 
 export const tripService = {
-  /**
-   * יצירת תכנית טיול חדשה לפי מיקום וסוג טיול
-   * - location: אובייקט עם name, lat, lng
-   * - tripType: סוג הטיול (למשל Hiking / Cycling)
-   * 
-   * הלוגיקה יוצרת payload אחיד לשרת, מדפיסה אותו ללוג לצורך דיבאג,
-   * ושולחת POST ל־/trip/plan
-   */
   async planTrip(location, tripType) {
     const payload = {
       location: {
@@ -49,10 +41,7 @@ export const tripService = {
     return response.data.data;
   },
   
-  /**
-   * שמירת מסלול חדש בשרת
-   * מקבל אובייקט מסלול מלא ושולח אותו ל־/routes
-   */
+
   async createRoute(route) {
     const response = await api.post('/routes', route);
     return response.data;

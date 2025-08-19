@@ -30,15 +30,14 @@ function withNoCache(config = {}) {
   const ts = Date.now().toString();
   return {
     ...config,
-    params: { ...(config.params || {}), ts }, // מוסיפים את פרמטר ה־ts לשורת השאילתה
+    params: { ...(config.params || {}), ts }, 
   };
 }
 
 export const routeService = {
   /**
    * שליפת כל המסלולים של המשתמש הנוכחי
-   * כולל פרמטרים לפגינציה וסינון
-   * מחזיר: { routes, pagination }
+   
    */
   async getRoutes(params = {}, { noCache = true } = {}) {
     const cfg = noCache ? withNoCache({ params }) : { params };
@@ -46,47 +45,27 @@ export const routeService = {
     return res.data.data;
   },
 
-  /**
-   * שליפת פרטי מסלול בודד לפי מזהה
-   * מחזיר: { route }
-   */
+
   async getRoute(id, { noCache = true } = {}) {
     const cfg = noCache ? withNoCache() : undefined;
     const res = await api.get(`/routes/${id}`, cfg);
     return res.data.data;
   },
 
-  /**
-   * יצירת מסלול חדש
-   * מחזיר: route
-   */
+
   async createRoute(routeData) {
     const res = await api.post('/routes', routeData);
     return res.data.data.route;
   },
 
-  /**
-   * עדכון מסלול קיים
-   * מחזיר: route
-   */
-  async updateRoute(id, routeData) {
-    const res = await api.put(`/routes/${id}`, routeData);
-    return res.data.data.route;
-  },
 
-  /**
-   * מחיקת מסלול לפי מזהה
-   * מחזיר: { success, message }
-   */
+ 
   async deleteRoute(id) {
     const res = await api.delete(`/routes/${id}`);
     return res.data;
   },
 
-  /**
-   * שליפת נתוני סטטיסטיקות מצטברות על המסלולים
-   * מחזיר: stats object
-   */
+
   async getRouteStats({ noCache = true } = {}) {
     const cfg = noCache ? withNoCache() : undefined;
     const res = await api.get('/routes/stats', cfg);

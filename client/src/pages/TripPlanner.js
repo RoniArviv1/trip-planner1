@@ -18,16 +18,15 @@ const TripPlanner = () => {
     name: '',
     description: ''
   });
-  // דגלי טעינה נפרדים: יצירת מסלול / טעינת מזג אוויר
+ 
   const [loading, setLoading] = useState(false);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  // תוצרים מהשרת: נתוני מסלול, מזג אוויר, תמונה
+
   const [routeData, setRouteData] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [imageData, setImageData] = useState(null);
 
-  // שליטה על UI לשלב השמירה (כדי לא להעמיס לפני שיש מסלול)
   const [showSaveFields, setShowSaveFields] = useState(false);
 
   const navigate = useNavigate();
@@ -134,7 +133,6 @@ const TripPlanner = () => {
     return {
       totalDistance: routeData.totalDistance,
       totalDuration: routeData.totalDuration,
-      totalElevation: routeData.totalElevation,
       dailyRoutes: routeData.dailyRoutes || [],
     };
   };
