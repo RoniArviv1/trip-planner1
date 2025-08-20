@@ -4,20 +4,19 @@ const { validationResult } = require('express-validator');
 const normalizeRouteData = require('./normalizeRouteData');
 const mongoose = require('mongoose');
 
-// @desc    Get all routes for current user
-// @route   GET /api/routes
-// @access  Private
+
+//   GET /api/routes
 const getRoutes = asyncHandler(async (req, res) => {
-  // פרמס של עמוד/כמות לרשימה – המרה למספר עם ברירת מחדל
+  // Page/limit params – convert to numbers with defaults
   const pageNum = Number(req.query.page || 1);
   const limitNum = Number(req.query.limit || 10);
   const { tripType } = req.query;
 
-  // סינון לפי משתמש מחובר; אופציונלית לפי סוג טיול
+  // Filter by logged-in user; optionally by tripType
   const filter = { user: req.user.id };
   if (tripType) filter.tripType = tripType;
 
-  // שליפה מדפדפת + מיון מהחדש לישן
+  // Paginated query + sort newest first
   const routes = await Route.find(filter)
     .sort({ createdAt: -1 })
     .limit(limitNum)
@@ -26,7 +25,7 @@ const getRoutes = asyncHandler(async (req, res) => {
 
   const count = await Route.countDocuments(filter);
 
-  // מחזירים רק תקציר לכל מסלול כדי לחסוך נפח תגובה
+  // Return only summary for each route to reduce response size
   res.json({
     success: true,
     data: {
@@ -42,18 +41,17 @@ const getRoutes = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get single route
-// @route   GET /api/routes/:id
-// @access  Private
+
+//   GET /api/routes/:id
 const getRoute = asyncHandler(async (req, res) => {
   const route = await Route.findById(req.params.id);
   if (!route) return res.status(404).json({ success: false, message: 'Route not found' });
 
-  // הגנה על נתוני משתמשים אחרים
+  // Protect from accessing another user's data
   if (route.user.toString() !== req.user.id)
     return res.status(403).json({ success: false, message: 'Not authorized to access this route' });
 
-  // נרמול routeData לפורמט עקבי + חישוב center לשימוש בפרונט
+  // Normalize routeData to consistent format + compute center for frontend
   const { routeData: normalizedRD, center } = normalizeRouteData(route.routeData, route.location);
 
   const detailed = route.getDetailed();
@@ -63,11 +61,10 @@ const getRoute = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { route: detailed } });
 });
 
-// @desc    Create new route
-// @route   POST /api/routes
-// @access  Private
+
+//   POST /api/routes
 const createRoute = asyncHandler(async (req, res) => {
-  // ולידציית בקשה בעזרת express-validator (אם הוגדר ברמת הראוט)
+  // Validate request using express-validator (if defined in router)
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, errors: errors.array() });
@@ -79,13 +76,13 @@ const createRoute = asyncHandler(async (req, res) => {
     tripType,
     location,
     routeData,
-    // weather, ← במכוון לא נקלט ולא נשמר
+    // weather, ← intentionally ignored/not stored
     image,
     tags,
     notes
   } = req.body;
 
-  // נרמול נתוני מסלול לפני שמירה למסד – מבטיח מבנה עקבי
+  // Normalize routeData before saving to DB – ensures consistent structure
   const { routeData: normalizedRD } = normalizeRouteData(routeData, location);
 
   const route = await Route.create({
@@ -95,7 +92,7 @@ const createRoute = asyncHandler(async (req, res) => {
     tripType,
     location,
     routeData: normalizedRD,
-    // weather, ← לא נשמר במסד הנתונים
+    // weather, ← not stored in DB
     image,
     tags,
     notes
@@ -108,9 +105,9 @@ const createRoute = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update route
-// @route   PUT /api/routes/:id
-// @access  Private
+
+// PUT /api/routes/:id
+
 const updateRoute = asyncHandler(async (req, res) => {
   let route = await Route.findById(req.params.id);
 
@@ -118,7 +115,7 @@ const updateRoute = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: 'Route not found' });
   }
 
-  // מניעת עדכון של מסלול שלא שייך למשתמש
+  // Prevent updating a route that does not belong to the user
   if (route.user.toString() !== req.user.id) {
     return res.status(403).json({ success: false, message: 'Not authorized to update this route' });
   }
@@ -129,26 +126,26 @@ const updateRoute = asyncHandler(async (req, res) => {
     tripType,
     location,
     routeData,
-    // weather, ← במכוון לא מעדכנים
+    // weather, ← intentionally not updated
     image,
     tags,
     notes
   } = req.body;
 
-  // עדכונים חלקיים בלבד – נוגעים רק בשדות שנשלחו
+  // Partial updates – only touch fields that were provided
   if (name !== undefined) route.name = name;
   if (description !== undefined) route.description = description;
   if (tripType !== undefined) route.tripType = tripType;
-  // if (weather !== undefined) route.weather = weather; ← לא מעדכנים מז"א
+  // if (weather !== undefined) route.weather = weather; ← not updating weather
   if (image !== undefined) route.image = image;
   if (tags !== undefined) route.tags = tags;
   if (notes !== undefined) route.notes = notes;
 
-  // אם מיקום עודכן – נשמור אותו ונשתמש בו לנרמול routeData החדש
+  // If location updated – save it and use for normalizing new routeData
   const nextLocation = location !== undefined ? location : route.location;
   if (location !== undefined) route.location = location;
 
-  // נרמול routeData רק אם הגיע עדכון עבורו
+  // Normalize routeData only if provided
   if (routeData !== undefined) {
     const { routeData: normalizedRD } = normalizeRouteData(routeData, nextLocation);
     route.routeData = normalizedRD;
@@ -163,18 +160,19 @@ const updateRoute = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Delete route
-// @route   DELETE /api/routes/:id
-// @access  Private
+
+
+
+// DELETE /api/routes/:id
 const deleteRoute = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  // ולידציה מוקדמת למזהה לא תקין – מונע שאילתות מיותרות למסד
+  // Early validation for invalid ObjectId – avoids unnecessary DB queries
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ success: false, message: 'Invalid route id' });
   }
 
-  // מוחקים רק אם המסלול שייך למשתמש – הגנה דו-שלבית (גם בבקשה וגם במסד)
+  // Delete only if route belongs to the user – double protection (request + DB)
   const deleted = await Route.findOneAndDelete({ _id: id, user: req.user.id });
 
   if (!deleted) {

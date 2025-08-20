@@ -12,17 +12,10 @@ const {
 
 const router = express.Router();
 
-/**
- * Middleware גלובלי – כל המסלולים בקובץ הזה מוגנים
- * המשמעות: המשתמש חייב להיות מחובר (JWT תקין) כדי לגשת אליהם
- */
+// All routes require auth (JWT)
 router.use(protect);
 
-/**
- * ולידציה ליצירת מסלול חדש
- * מוודאת שכל השדות החיוניים נשלחים בפורמט תקין
- * כולל בדיקות אורך, סוג נתונים וטווחים גיאוגרפיים (lat/lng)
- */
+// Validation: create route
 const createRouteValidation = [
   body('name')
     .trim()
@@ -35,7 +28,7 @@ const createRouteValidation = [
     .withMessage('Description cannot exceed 500 characters'),
   body('tripType')
     .isIn(['hiking', 'cycling'])
-    .withMessage('Trip type must be either hiking or cycling'),
+    .withMessage('Trip type must be hiking or cycling'),
   body('location.country')
     .trim()
     .notEmpty()
@@ -52,10 +45,10 @@ const createRouteValidation = [
     .withMessage('Longitude must be between -180 and 180'),
   body('routeData.totalDistance')
     .isFloat({ min: 0 })
-    .withMessage('Total distance must be a positive number'),
+    .withMessage('Distance must be positive'),
   body('routeData.totalDuration')
     .isFloat({ min: 0 })
-    .withMessage('Total duration must be a positive number'),
+    .withMessage('Duration must be positive'),
   body('tags')
     .optional()
     .isArray()
@@ -64,18 +57,15 @@ const createRouteValidation = [
     .optional()
     .trim()
     .isLength({ max: 50 })
-    .withMessage('Each tag must be less than 50 characters'),
+    .withMessage('Each tag < 50 chars'),
   body('notes')
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage('Notes cannot exceed 1000 characters')
+    .withMessage('Notes < 1000 chars')
 ];
 
-/**
- * ולידציה לעדכון מסלול קיים
- * כל השדות הם אופציונליים, אך אם נשלחים – נבדקים באותם כללים
- */
+// Validation: update route
 const updateRouteValidation = [
   body('name')
     .optional()
@@ -90,7 +80,7 @@ const updateRouteValidation = [
   body('tripType')
     .optional()
     .isIn(['hiking', 'cycling'])
-    .withMessage('Trip type must be either hiking or cycling'),
+    .withMessage('Trip type must be hiking or cycling'),
   body('tags')
     .optional()
     .isArray()
@@ -99,22 +89,20 @@ const updateRouteValidation = [
     .optional()
     .trim()
     .isLength({ max: 50 })
-    .withMessage('Each tag must be less than 50 characters'),
+    .withMessage('Each tag < 50 chars'),
   body('notes')
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage('Notes cannot exceed 1000 characters')
+    .withMessage('Notes < 1000 chars')
 ];
 
-/**
- * ניהול מסלולי הטיול של המשתמש:
- * GET /api/routes       – מחזיר את כל המסלולים של המשתמש
- * GET /api/routes/:id   – מחזיר מסלול לפי מזהה
- * POST /api/routes      – יצירת מסלול חדש (עם ולידציה)
- * PUT /api/routes/:id   – עדכון מסלול קיים (עם ולידציה)
- * DELETE /api/routes/:id – מחיקת מסלול
- */
+// Routes
+// GET /api/routes       – all routes
+// GET /api/routes/:id   – single route
+// POST /api/routes      – create
+// PUT /api/routes/:id   – update
+// DELETE /api/routes/:id – delete
 router.get('/', getRoutes);
 router.get('/:id', getRoute);
 router.post('/', createRouteValidation, createRoute);

@@ -1,84 +1,71 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Middleware להגנה על ראוטים (מאמת שהמשתמש מחובר ובעל הרשאות)
+// Protect routes – check login + token
 const protect = async (req, res, next) => {
   let token;
 
-  // בודקים אם יש Authorization Header בפורמט של Bearer Token
+  // Check for Bearer token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // שליפת הטוקן מהמחרוזת "Bearer <token>"
+      // Get token
       token = req.headers.authorization.split(' ')[1];
 
-      // אימות הטוקן באמצעות המפתח הסודי (JWT_SECRET)
+      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // שליפת המשתמש מהמסד ע"פ ה-ID שקודד בטוקן
-      req.user = await User.findById(decoded.id).select('-password'); // ללא שדה הסיסמה
+      // Find user by ID (no password)
+      req.user = await User.findById(decoded.id).select('-password');
 
-      // אם המשתמש לא נמצא – החזרת שגיאה
+      // User not found
       if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'User not found'
-        });
+        return res.status(401).json({ success: false, message: 'User not found' });
       }
 
-      // אם החשבון לא פעיל – חסימה
+      // Account inactive
       if (!req.user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'User account is deactivated'
-        });
+        return res.status(401).json({ success: false, message: 'Account deactivated' });
       }
 
-      // ממשיכים לראוט הבא
+      // Continue
       next();
     } catch (error) {
-      // טיפול בשגיאה בזמן אימות הטוקן (למשל טוקן פג תוקף או שגוי)
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized, token failed'
-      });
+      // Token invalid/expired
+      return res.status(401).json({ success: false, message: 'Token failed' });
     }
   }
 
-  // אם לא התקבל טוקן כלל – חסימה
+  // No token
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Not authorized, no token'
-    });
+    return res.status(401).json({ success: false, message: 'No token' });
   }
 };
 
-// פונקציה ליצירת JWT חדש עבור משתמש
+// Generate JWT for user
 const generateToken = (id) => {
-  // יוצרת טוקן עם ה-ID של המשתמש ותוקף ברירת מחדל של 7 ימים (או ערך מוגדר במשתנים)
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
 
-// Middleware אופציונלי – בודק טוקן אם קיים, אך לא מחזיר שגיאה אם הוא חסר/לא תקין
+// Optional auth – set user if token valid, else ignore
 const optionalAuth = async (req, res, next) => {
   let token;
 
-  // בודקים אם יש Authorization Header
+  // Check for Bearer token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // שליפת הטוקן ואימותו
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // אם תקין – שמירת המשתמש בבקשה
+      // Set user (no password)
       req.user = await User.findById(decoded.id).select('-password');
     } catch (error) {
+      // Ignore errors
     }
   }
 
-  // תמיד ממשיכים הלאה, גם אם לא נמצא טוקן או שהוא לא תקין
+  // Always continue
   next();
 };
 

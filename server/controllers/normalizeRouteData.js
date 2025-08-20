@@ -1,26 +1,26 @@
-// פונקציה להמרת ערך למספר תקין או null אם לא ניתן להמיר
+// Function to convert a value to a valid number or null if conversion fails
 function asNumber(n) {
   const v = Number(n);
   return Number.isFinite(v) ? v : null;
 }
 
-// בניית dailyRoutes מתוך points – קיבוץ נקודות לפי יום
+// Build dailyRoutes from points – groups points by day
 function buildDailyRoutesFromPoints(points = []) {
   const byDay = {};
   for (const p of points) {
     const lat = asNumber(p.lat);
     const lng = asNumber(p.lng);
-    if (lat == null || lng == null) continue; // דילוג על נקודות לא תקינות
+    if (lat == null || lng == null) continue; // Skip invalid points
     const day = p.day != null ? Number(p.day) : 1;
     (byDay[day] ||= []).push({ lat, lng });
   }
-  // המרה למערך ממויין לפי יום
+  // Convert to an array sorted by day
   return Object.keys(byDay)
     .sort((a, b) => Number(a) - Number(b))
     .map(d => ({ day: Number(d), points: byDay[d] }));
 }
 
-// יצירת אובייקט LineString בפורמט GeoJSON מתוך dailyRoutes
+// Create a GeoJSON LineString object from dailyRoutes
 function lineFromDailyRoutes(dailyRoutes = []) {
   const coords = [];
   for (const d of dailyRoutes) {
@@ -29,13 +29,13 @@ function lineFromDailyRoutes(dailyRoutes = []) {
       const lat = asNumber(p.lat);
       const lng = asNumber(p.lng);
       if (lat == null || lng == null) continue;
-      coords.push([lng, lat]); // GeoJSON דורש [lng, lat]
+      coords.push([lng, lat]); // GeoJSON requires [lng, lat]
     }
   }
   return coords.length >= 2 ? { type: 'LineString', coordinates: coords } : null;
 }
 
-// בדיקת סוגי geometry שונים והחזרת LineString תקין אם נמצא
+// Validate different geometry types and return a valid LineString if available
 function normalizeGeometry(geometry) {
   if (!geometry) return null;
 
@@ -56,15 +56,15 @@ function normalizeGeometry(geometry) {
   return null;
 }
 
-// חישוב ממוצע מערך מספרים
+// Calculate average of a numeric array
 function average(arr) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 }
 
 module.exports = function normalizeRouteData(input = {}, location) {
-  const out = JSON.parse(JSON.stringify(input || {})); // שכפול עמוק למניעת שינוי המקור
+  const out = JSON.parse(JSON.stringify(input || {})); // Deep clone to avoid modifying original
 
-  // 1) הבטחת dailyRoutes קיים ומסודר
+  // Ensure dailyRoutes exists and is properly structured
   if (!Array.isArray(out.dailyRoutes) || !out.dailyRoutes.length) {
     if (Array.isArray(out.points) && out.points.length) {
       out.dailyRoutes = buildDailyRoutesFromPoints(out.points);
@@ -72,7 +72,7 @@ module.exports = function normalizeRouteData(input = {}, location) {
       out.dailyRoutes = Array.isArray(out.dailyRoutes) ? out.dailyRoutes : [];
     }
   } else {
-    // ניקוי ותקנון נקודות בתוך dailyRoutes
+    // Clean and normalize points inside dailyRoutes
     out.dailyRoutes = out.dailyRoutes.map(d => ({
       day: d.day != null ? Number(d.day) : 1,
       points: (d.points || [])
@@ -81,14 +81,14 @@ module.exports = function normalizeRouteData(input = {}, location) {
     })).filter(d => d.points.length);
   }
 
-  // 2) הבטחת geometry תקין בפורמט LineString
+  //Ensure geometry is valid in LineString format
   let geom = normalizeGeometry(out.geometry);
   if (!geom || !Array.isArray(geom.coordinates) || geom.coordinates.length < 2) {
     geom = lineFromDailyRoutes(out.dailyRoutes);
   }
   out.geometry = geom || null;
 
-  // 3) חישוב נקודת center למפה אם לא קיימת כבר
+  //Compute a center point for the map if not already provided
   let center = out.center;
   if (!center) {
     if (out.geometry?.coordinates?.length) {

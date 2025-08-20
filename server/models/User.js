@@ -1,22 +1,21 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-// -------------------- הגדרת סכמת המשתמש --------------------
+// -------------------- User Schema --------------------
 const userSchema = new mongoose.Schema({
-  // שם המשתמש
+
   name: {
     type: String,
-    required: [true, 'Name is required'], // שדה חובה
-    trim: true,                           // הסרת רווחים מיותרים
-    maxlength: [50, 'Name cannot be more than 50 characters']
+    required: [true, 'Name is required'],
+    trim: true,
+    maxlength: [50, 'Max 50 characters']
   },
 
-  // אימייל (משמש גם כפרטי התחברות)
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,         // ייחודי ברמת DB – לא יתאפשר שני משתמשים עם אותו אימייל
-    lowercase: true,      // נרמול אותיות קטנות למניעת כפילויות
+    unique: true,        
+    lowercase: true,     
     trim: true,
     match: [
       /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
@@ -24,44 +23,36 @@ const userSchema = new mongoose.Schema({
     ]
   },
 
-  // סיסמה מוצפנת
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false         // החלטה עיצובית: לא להחזיר סיסמה כברירת מחדל
-                          // כדי למנוע חשיפה לא מכוונת בתשובות API
+    minlength: [6, 'At least 6 chars'],
+    select: false        // hide by default
   },
 
-  // סטטוס חשבון (פעיל/לא פעיל)
   isActive: {
     type: Boolean,
     default: true
   },
 
-  // תאריך כניסה אחרון
   lastLogin: {
     type: Date,
-    default: Date.now // מתעדכן בעת התחברות מוצלחת
+    default: Date.now
   }
 }, {
-  timestamps: true // יוצר אוטומטית createdAt ו־updatedAt
+  timestamps: true // auto createdAt + updatedAt
 });
 
-// אינדקס לחיפושים מהירים לפי אימייל (בנוסף ל-unique)
+// Index by email
 userSchema.index({ email: 1 });
 
-// -------------------- Hooks (Middleware) --------------------
-/**
- * pre('save') – מתבצע לפני שמירת מסמך:
- * אם הסיסמה שונתה, מבצעים hashing עם salt.
- */
-userSchema.pre('save', async function(next) {
-  // אם הסיסמה לא שונתה – ממשיכים בלי hashing מחדש
-  if (!this.isModified('password')) return next();
 
+// -------------------- Hooks --------------------
+// Hash password before save (if modified)
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
   try {
-    const salt = await bcrypt.genSalt(12); // 12 סיבובים – איזון בין אבטחה לביצועים
+    const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (err) {
@@ -69,31 +60,21 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// -------------------- Methods (מתודות של המודל) --------------------
-/**
- * השוואת סיסמה גולמית מול הסיסמה המוצפנת שנשמרה.
- * שימו לב: יש לשלוף את השדה password בעזרת select('+password')
- * מכיוון שהוא מוגדר select:false.
- */
+// -------------------- Methods --------------------
+// Compare entered password with hashed one
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-/**
- * החזרת פרופיל ציבורי – בלי הסיסמה.
- * שימושי להחזרת נתונים ל־API מבלי לחשוף מידע רגיש.
- */
+// Return public profile (no password)
 userSchema.methods.getPublicProfile = function() {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-// -------------------- Statics (מתודות סטטיות) --------------------
-/**
- * חיפוש משתמש לפי אימייל, עם נרמול ל-lowercase.
- * שומר על עקביות עם ההגדרה בסכמה.
- */
+// -------------------- Statics --------------------
+// Find user by email (normalized)
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase() });
 };

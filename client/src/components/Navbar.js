@@ -10,7 +10,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   /**
-   * מתבצעת יציאה של המשתמש ומוצגת הודעת הצלחה
+   * Logs the user out and shows a success message.
    */
   const handleLogout = () => {
     logout();
@@ -18,7 +18,7 @@ const Navbar = () => {
     navigate('/');
   };
 
-  // שליטה על פתיחה/סגירה של תפריט מובייל
+  // Controls opening/closing of the mobile menu
   /*const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -29,17 +29,17 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
 
-          {/* לוגו וקישור לדף הבית */}
+          {/* Logo and link to the home page */}
           <Link to="/" className="flex items-center space-x-2">
             <MapPin className="h-8 w-8 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">Trip Planner</span>
           </Link>
 
-          {/* תפריט ניווט למחשב */}
+          {/* Desktop navigation menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-600 hover:text-blue-600 transition-colors">Home</Link>
 
-            {/* הצגת קישורים נוספים רק אם המשתמש מחובר */}
+            {/* Show additional links only if the user is logged in */}
             {user && (
               <>
                 <Link to="/plan" className="text-gray-600 hover:text-blue-600">Plan Trip</Link>
@@ -48,17 +48,17 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* תפריט התחברות/פרופיל/יציאה */}
+          {/* Auth/Profile/Logout menu */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                {/* תצוגת שם משתמש */}
+                {/* Display user name */}
                 <div className="flex items-center space-x-2">
                   <User className="h-5 w-5 text-gray-600" />
                   <span className="text-gray-700">{user.name}</span>
                 </div>
 
-                {/* קישור לפרופיל וכפתור יציאה */}
+                {/* Profile link and logout button */}
                 <div className="flex items-center space-x-2">
                   <Link to="/profile" className="text-gray-600 hover:text-blue-600">Profile</Link>
                   <button onClick={handleLogout} className="text-gray-600 hover:text-red-600 flex items-center space-x-1">
@@ -74,7 +74,7 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          {/* כפתור תפריט למובייל 
+          {/* Mobile menu button 
           <button onClick={toggleMenu} className="md:hidden p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100">
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>

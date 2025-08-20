@@ -1,49 +1,49 @@
-/* טעינת שכבות Tailwind CSS – מאפשר שימוש במחלקות בסיס, רכיבים, ו־utilities */
+/* Load Tailwind CSS layers — enables base, components, and utilities classes */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- שכבת base: עיצוב גלובלי --- */
+/* --- Base layer: global styles --- */
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif; /* החלטה עיצובית: פונט מודרני קריא */
+    font-family: 'Inter', system-ui, sans-serif; /* Design choice: modern, readable font */
   }
 
   body {
-    @apply bg-gray-50 text-gray-900; /* רקע בהיר וטקסט כהה לקריאות גבוהה */
+    @apply bg-gray-50 text-gray-900; /* Light background and dark text for high readability */
   }
 }
 
-/* --- שכבת components: רכיבי UI מותאמים אישית --- */
+/* --- Components layer: custom UI components --- */
 @layer components {
-  /* כפתור כללי – בסיס לכל סוגי הכפתורים */
+  /* Generic button — base for all button variants */
   .btn {
     @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 
            focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
-  /* כפתור ראשי – קריאות לפעולה */
+  /* Primary button — calls to action */
   .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
   }
 
-  /* כפתור משני – פעולות פחות קריטיות */
+  /* Secondary button — less critical actions */
   .btn-secondary {
     @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
   }
 
-  /* כפתור מסוכן – למחיקות או פעולות בלתי הפיכות */
+  /* Danger button — deletions or irreversible actions */
   .btn-danger {
     @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
 
-  /* שדה קלט – עיצוב אחיד לטפסים */
+  /* Input field — consistent form styling */
   .input {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg 
            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
   }
 
-  /* כרטיסי תוכן – חלוקה ויזואלית של מידע */
+  /* Content cards — visual grouping of information */
   .card {
     @apply bg-white rounded-lg shadow-sm border border-gray-200;
   }
@@ -58,25 +58,25 @@
   }
 }
 
-/* --- עיצוב Leaflet – ספריית מפות --- */
+/* --- Leaflet styling — mapping library --- */
 .leaflet-container {
   height: 100% !important;
   width: 100% !important;
   border-radius: 0.5rem;
-  z-index: 1; /* מניעת כיסוי ע"י רכיבים אחרים */
+  z-index: 1; /* Prevent being covered by other components */
 }
 
 .leaflet-popup-content {
   margin: 0.5rem;
-  font-size: 0.875rem; /* טקסט קטן אך קריא */
+  font-size: 0.875rem; /* Small but readable text */
 }
 
-/* --- גלילה מותאמת --- */
+/* --- Custom scrollbar --- */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9; /* אפור בהיר */
+  background: #f1f5f9; /* Light gray */
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
@@ -86,17 +86,17 @@
   background: #94a3b8;
 }
 
-/* --- אנימציית טעינה (Spinner) --- */
+/* --- Loading animation (Spinner) --- */
 .spinner {
   @apply animate-spin rounded-full border-2 border-gray-300 border-t-blue-600;
 }
 
-/* --- אייקונים של מזג אוויר --- */
+/* --- Weather icons --- */
 .weather-icon {
-  @apply w-8 h-8; /* גודל אחיד */
+  @apply w-8 h-8; /* Uniform size */
 }
 
-/* --- תגיות (Badge) לזיהוי סוגי מסלולים --- */
+/* --- Badges to indicate route types --- */
 .badge {
   @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
 }
@@ -110,7 +110,7 @@
   @apply bg-purple-100 text-purple-800;
 }
 
-/* --- רספונסיביות – התאמת ריווח במובייל --- */
+/* --- Responsiveness — adjust spacing on mobile --- */
 @media (max-width: 640px) {
   .container {
     @apply px-4;

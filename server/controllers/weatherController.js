@@ -1,16 +1,15 @@
 const axios = require('axios');
 const { asyncHandler } = require('../middleware/errorHandler');
 
-// מביא תחזית 3 ימים קדימה לפי קואורדינטות
+// Get 3-day forecast by coordinates
 const getWeatherData = async (startLat, startLng) => {
   try {
-    // מפתח API של OpenWeatherMap נדרש לקריאה תקינה
+    // API key required
     if (!process.env.WEATHER_API_KEY) {
       return { forecast: [] };
     }
 
-
-    // קריאה ל־forecast (כל 3 שעות) – 24 רשומות ≈ 3 ימים
+    // Call OpenWeatherMap (3h intervals, 24 records ≈ 3 days)
     const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast', {
       params: {
         lat: startLat,
@@ -29,7 +28,7 @@ const getWeatherData = async (startLat, startLng) => {
     const forecastData = response.data.list;
     const dailyData = {};
 
-    // קיבוץ נקודות מדידה לפי יום (yyyy-mm-dd)
+    // Group data by day (yyyy-mm-dd)
     forecastData.forEach(forecast => {
       const date = new Date(forecast.dt * 1000);
       const dayKey = date.toISOString().split('T')[0];
@@ -54,7 +53,7 @@ const getWeatherData = async (startLat, startLng) => {
       dailyData[dayKey].precipitation.push(forecast.pop * 100);
     });
 
-    // בחירה של 3 ימים קרובים (ממחר ואילך)
+    // Pick next 3 days (from tomorrow)
     const tomorrow = new Date();
     tomorrow.setHours(0, 0, 0, 0);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -80,17 +79,17 @@ const getWeatherData = async (startLat, startLng) => {
       });
     return { forecast: forecasts };
   } catch (error) {
-    // שגיאה בזמן הקריאה/עיבוד – מחזירים מבנה ריק כדי לא לשבור את ה־API
+    // On error return empty forecast
     return { forecast: [] };
   }
 };
 
-// עוטף ל־Express: מחזיר תחזית עדכנית לפי lat/lng מה־params
+// Express wrapper: forecast by lat/lng params
 const getForecastByCoords = asyncHandler(async (req, res) => {
   const lat = Number(req.params.lat);
   const lng = Number(req.params.lng);
 
-  // ולידציה בסיסית לפרמטרים נומריים
+  // Basic numeric validation
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return res.status(400).json({ success: false, message: 'Invalid coordinates' });
   }
@@ -99,7 +98,7 @@ const getForecastByCoords = asyncHandler(async (req, res) => {
   return res.json({ success: true, data });
 });
 
-// מחזיר את הערך השכיח במערך (לצורך תיאור יומי "מייצג")
+// Get most frequent item (for daily description)
 const getMostFrequent = (arr) => {
   const frequency = {};
   let maxFreq = 0;

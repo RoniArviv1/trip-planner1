@@ -1,34 +1,33 @@
-// קובץ: client/src/contexts/AuthContext.js
+// File: client/src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 
-// יוצרים אובייקט קונטקסט גלובלי שיחזיק את מצב ההתחברות והפונקציות
+// Create a global context object to hold auth state and actions
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  // הגנה מפני שימוש מחוץ ל-Provider (כדי למנוע באגים שקטים)
+  // Guard against usage outside the Provider (to avoid silent bugs)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-// ה-Provider שעוטף את כל האפליקציה ומספק את הערכים/הפעולות לכל הילדים
+// Provider that wraps the entire app and supplies values/actions to children
 export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
- 
   const [loading, setLoading] = useState(true);
- 
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // בעת טעינת האפליקציה (או שינוי ב-token) נבדוק האם המשתמש מחובר (GET /auth/me)
+  // On app load (or when the token changes) check if the user is authenticated (GET /auth/me)
   useEffect(() => {
     const checkAuth = async () => {
       if (token) {
         try {
-          const userData = await authService.getCurrentUser(); // מחייב interceptor שמוסיף Authorization
+          // Requires an axios interceptor that adds the Authorization header
+          const userData = await authService.getCurrentUser();
           setUser(userData);
         } catch (error) {
           localStorage.removeItem('token');
@@ -41,13 +40,12 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  // התחברות: שליחת אימייל+סיסמה לשרת (POST /auth/login)
+  // Login: send email + password to the server (POST /auth/login)
   const login = async (email, password) => {
     try {
       const response = await authService.login(email, password);
       const { user: userData, token: authToken } = response;
 
-     
       setUser(userData);
       setToken(authToken);
       localStorage.setItem('token', authToken);
@@ -61,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // הרשמה: שליחת שם+אימייל+סיסמה לשרת (POST /auth/register)
+  // Registration: send name + email + password to the server (POST /auth/register)
   const register = async (name, email, password) => {
     try {
       const response = await authService.register(name, email, password);
@@ -80,14 +78,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // התנתקות: איפוס מצב הלקוח ומחיקת הטוקן (אין צורך בקריאת API)
+  // Logout: reset client state and remove the token (no API call needed)
   const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('token');
   };
 
-  // עדכון פרופיל: קריאה מאובטחת לשרת (PUT /auth/profile למשל)
+  // Update profile: secured call to the server (e.g., PUT /auth/profile)
   const updateProfile = async (profileData) => {
     try {
       const updatedUser = await authService.updateProfile(profileData);
@@ -101,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // שינוי סיסמה: קריאה מאובטחת (PUT /auth/password למשל)
+  // Change password: secured call (e.g., PUT /auth/password)
   const changePassword = async (currentPassword, newPassword) => {
     try {
       await authService.changePassword(currentPassword, newPassword);
@@ -114,19 +112,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // הערך שמסופק לכל הרכיבים באפליקציה דרך הקונטקסט
+  // Value provided to all components in the app via context
   const value = {
-    user,           
-    loading,       
-    token,          
-    login,          
-    register,       
-    logout,         
-    updateProfile,  
-    changePassword  
+    user,
+    loading,
+    token,
+    login,
+    register,
+    logout,
+    updateProfile,
+    changePassword
   };
 
-  // עוטפים את הילדים ב-Provider כדי שכל האפליקציה תיגש לערכים/פונקציות
+  // Wrap children with the Provider so the whole app can access values/functions
   return (
     <AuthContext.Provider value={value}>
       {children}

@@ -1,19 +1,19 @@
 const express = require('express');
-const { body } = require('express-validator'); // ספרייה לבדיקת ולידציה של נתוני בקשה
-const { protect } = require('../middleware/auth'); // Middleware שמוודא שהמשתמש מחובר (JWT)
+const { body } = require('express-validator'); // Request validation
+const { protect } = require('../middleware/auth'); // Auth middleware (JWT)
 const {
   register,
   login,
   getMe,
   updateProfile,
   changePassword
-} = require('../controllers/authController'); // פונקציות הבקרה (Controllers) עבור כל פעולה
+} = require('../controllers/authController'); // Controllers
 
-const router = express.Router(); // יצירת Router של Express
+const router = express.Router(); // Express router
 
-// -------------------- Validation Middleware --------------------
+// -------------------- Validation --------------------
 
-// ולידציה לרישום משתמש חדש
+// Register validation
 const registerValidation = [
   body('name')
     .trim()
@@ -28,7 +28,7 @@ const registerValidation = [
     .withMessage('Password must be at least 6 characters long')
 ];
 
-// ולידציה להתחברות
+// Login validation
 const loginValidation = [
   body('email')
     .isEmail()
@@ -39,7 +39,7 @@ const loginValidation = [
     .withMessage('Password is required')
 ];
 
-// ולידציה לעדכון פרופיל משתמש
+// Update profile validation
 const updateProfileValidation = [
   body('name')
     .optional()
@@ -51,10 +51,9 @@ const updateProfileValidation = [
     .isEmail()
     .normalizeEmail()
     .withMessage('Please enter a valid email')
-  // הערה: השדה preferences הוסר מהוולידציה בהתאם לעדכון הדרישות
 ];
 
-// ולידציה לשינוי סיסמה
+// Change password validation
 const changePasswordValidation = [
   body('currentPassword')
     .notEmpty()
@@ -66,19 +65,19 @@ const changePasswordValidation = [
 
 // -------------------- Routes --------------------
 
-// רישום משתמש חדש
+// Register
 router.post('/register', registerValidation, register);
 
-// התחברות
+// Login
 router.post('/login', loginValidation, login);
 
-// קבלת פרטי המשתמש המחובר (דורש התחברות)
+// Get current user (requires login)
 router.get('/me', protect, getMe);
 
-// עדכון פרטי פרופיל (דורש התחברות)
+// Update profile (requires login)
 router.put('/profile', protect, updateProfileValidation, updateProfile);
 
-// שינוי סיסמה (דורש התחברות)
+// Change password (requires login)
 router.put('/password', protect, changePasswordValidation, changePassword);
 
 module.exports = router;

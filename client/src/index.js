@@ -6,23 +6,21 @@ import './index.css';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 
-// יצירת root עבור האפליקציה בתוך האלמנט עם id="root"
+// Create the root for the app inside the element with id="root"
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  // StrictMode משמש לבדיקה והרצת אזהרות בזמן פיתוח
   <React.StrictMode>
-    {/* BrowserRouter מספק ניהול ראוטים בצד הלקוח */}
+    {/* BrowserRouter provides client-side routing */}
     <BrowserRouter>
-      {/* AuthProvider מספק הקשר (context) של משתמש מחובר לכל האפליקציה */}
+      {/* AuthProvider supplies the authenticated user context to the entire app */}
       <AuthProvider>
-        {/* קומפוננטת ה־App הראשית */}
+        {/* Main App component */}
         <App />
-        {/* Toaster – תצוגת התראות (toast) גלובלית */}
         <Toaster
-          position="top-right" // מיקום ההודעות
+          position="top-right" 
           toastOptions={{
-            duration: 4000, // זמן ברירת מחדל להצגת הודעה
+            duration: 4000, // default toast duration
             style: {
               background: '#363636',
               color: '#fff',
