@@ -430,12 +430,6 @@ const generateRouteWithOpenRouteService = async (waypoints, tripType) => {
 
 // Generate waypoints using Groq (LLM) with retries and aggressive JSON fixing
 const generateRouteWithAI = async (location, tripType, isRetry = false) => {
-  // Use preset waypoints when available for specific locations
-  const preset = getPresetWaypointsIfAny(location, tripType);
-  if (preset) {
-    return preset; 
-  }
-
   const maxRetries = 3;
   const retryDelay = 1000; // milliseconds between attempts
 
@@ -608,107 +602,7 @@ const isStraightLine = (points) => {
   return totalAngles > 0 && straightAngles / totalAngles > 0.7;
 };
 
-// Predefined hiking options for Queenstown (various safe, looped variants)
-function getQueenstownHikingRoutes() {
-  return [
-    // Route 1 — Gardens + Esplanade + short Sunshine Bay
-    [
-      { lat: -45.0343, lng: 168.6576, name: "Start - Queenstown Gardens Entrance" },
-      { lat: -45.0318, lng: 168.6621, name: "Marine Parade Boardwalk" },
-      { lat: -45.0332, lng: 168.6518, name: "St Omer Park" },
-      { lat: -45.0349, lng: 168.6395, name: "Sunshine Bay Track Access" },
-      { lat: -45.0320, lng: 168.6395, name: "Fernhill Rd / Richards Park" },
-      { lat: -45.0306, lng: 168.6627, name: "Ballarat St / Camp St" },
-      { lat: -45.0343, lng: 168.6576, name: "Finish - Queenstown Gardens Entrance" }
-    ],
 
-    // Route 2 — Gardens + Skyline + Gorge Rd
-    [
-      { lat: -45.0343, lng: 168.6576, name: "Start - Queenstown Gardens Entrance" },
-      { lat: -45.0329, lng: 168.6535, name: "Skyline Gondola Base" },
-      { lat: -45.0291, lng: 168.6455, name: "Skyline Loop Trail Viewpoint" },
-      { lat: -45.0248, lng: 168.6612, name: "Recreation Ground (Gorge Rd)" },
-      { lat: -45.0306, lng: 168.6627, name: "Ballarat St / Camp St" },
-      { lat: -45.0343, lng: 168.6576, name: "Finish - Queenstown Gardens Entrance" }
-    ],
-
-    // Route 3 — Gardens + Lake Esplanade + Fernhill Loop
-    [
-      { lat: -45.0343, lng: 168.6576, name: "Start - Queenstown Gardens Entrance" },
-      { lat: -45.0339, lng: 168.6472, name: "Lake Esplanade / Brunswick St" },
-      { lat: -45.0346, lng: 168.6440, name: "Lake Esplanade / Fernhill Rd" },
-      { lat: -45.0370, lng: 168.6405, name: "Fernhill Scenic Lookout" },
-      { lat: -45.0320, lng: 168.6395, name: "Fernhill Rd / Richards Park" },
-      { lat: -45.0314, lng: 168.6628, name: "Beach St / Shotover St" },
-      { lat: -45.0343, lng: 168.6576, name: "Finish - Queenstown Gardens Entrance" }
-    ],
-    [
-      { lat: -45.03430, lng: 168.65760, name: "Start/Finish - Queenstown Gardens Entrance" },
-      { lat: -45.03205, lng: 168.66190, name: "Marine Parade Boardwalk" },
-      { lat: -45.03140, lng: 168.66275, name: "Beach St / Shotover St" },
-      { lat: -45.03290, lng: 168.65920, name: "Marine Parade / Church St" },
-      { lat: -45.03325, lng: 168.65180, name: "St Omer Park" },
-      { lat: -45.03425, lng: 168.64650, name: "Lake Esplanade (Lakeview)" },
-      { lat: -45.03485, lng: 168.64290, name: "Lake Esplanade / Fernhill Rd" },
-      { lat: -45.03395, lng: 168.64760, name: "Brunswick St / Lake Esplanade" },
-      { lat: -45.03270, lng: 168.65890, name: "Marine Parade (Gardens side)" },
-      { lat: -45.03430, lng: 168.65760, name: "Finish - Queenstown Gardens Entrance" }
-    ],
-
-    // Route 2 — Skyline & Ben Lomond Lower Loop (~9–10 km, some climb)
-    [
-      { lat: -45.03430, lng: 168.65760, name: "Start/Finish - Queenstown Gardens Entrance" },
-      { lat: -45.03325, lng: 168.66390, name: "Stanley St / Shotover St" },
-      { lat: -45.03280, lng: 168.65360, name: "Skyline Gondola Base (Brecon St)" },
-      { lat: -45.03020, lng: 168.64910, name: "Access to Skyline Rd" },
-      { lat: -45.02860, lng: 168.64610, name: "Ben Lomond Track Lower Junction" },
-      { lat: -45.02760, lng: 168.65190, name: "Descent toward Robins Rd" },
-      { lat: -45.02480, lng: 168.66120, name: "Recreation Ground (Gorge Rd)" },
-      { lat: -45.02990, lng: 168.66230, name: "Robins Rd / Ballarat St" },
-      { lat: -45.03200, lng: 168.66140, name: "Marine Parade (lakefront)" },
-      { lat: -45.03430, lng: 168.65760, name: "Finish - Queenstown Gardens Entrance" }
-    ],
-
-    // Route 3 — Sunshine Bay & Fernhill Loop (~11–12 km, varied)
-    [
-      { lat: -45.03430, lng: 168.65760, name: "Start/Finish - Queenstown Gardens Entrance" },
-      { lat: -45.03325, lng: 168.65180, name: "St Omer Park" },
-      { lat: -45.03425, lng: 168.64650, name: "Lake Esplanade (Lakeview)" },
-      { lat: -45.03485, lng: 168.64290, name: "Lake Esplanade / Fernhill Rd" },
-      { lat: -45.03490, lng: 168.63960, name: "Sunshine Bay Track Access" },
-      { lat: -45.03670, lng: 168.63270, name: "Sunshine Bay Beach / Lookout" },
-      { lat: -45.03600, lng: 168.63660, name: "Climb to Fernhill Rd (switchback)" },
-      { lat: -45.03360, lng: 168.64220, name: "Fernhill Rd (eastbound)" },
-      { lat: -45.03395, lng: 168.64720, name: "Back to Lake Esplanade" },
-      { lat: -45.03180, lng: 168.66210, name: "Marine Parade Boardwalk" },
-      { lat: -45.03430, lng: 168.65760, name: "Finish - Queenstown Gardens Entrance" }
-    ]
-
-  ];
-}
-
-let lastQueenstownIndex = null;
-
-// Avoid returning the same preset route twice in a row
-function getRandomQueenstownHikingWaypoints() {
-  const routes = getQueenstownHikingRoutes();
-  let idx;
-  do {
-    idx = Math.floor(Math.random() * routes.length);
-  } while (routes.length > 1 && idx === lastQueenstownIndex);
-  lastQueenstownIndex = idx;
-  return routes[idx];
-}
-
-// Return preset waypoints for certain labels/trip types when applicable
-function getPresetWaypointsIfAny(locationLabel, tripType) {
-  if (!locationLabel || typeof locationLabel !== 'string') return null;
-  const isQueenstown = /queenstown/i.test(locationLabel);
-  if (tripType === 'hiking' && isQueenstown) {
-    return { waypoints: getRandomQueenstownHikingWaypoints() };
-  }
-  return null;
-}
 
 module.exports = {
   planTrip
